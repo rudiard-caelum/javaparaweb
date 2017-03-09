@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html">
+<ui:composition template="/templates/externa.xhtml">
+	<ui:define name="corpo">
+		<h:form>
+			<h:commandLink action="#{usuarioBean.novo}">Novo usuário</h:commandLink>
+			<br />
+			<h:outputLink value="restrito/principal.jsf?faces-redirect=true">Entrar</h:outputLink>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</html>

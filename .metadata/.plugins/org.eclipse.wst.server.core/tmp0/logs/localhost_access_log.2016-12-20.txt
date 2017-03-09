@@ -1,0 +1,7 @@
+127.0.0.1 - - [20/Dec/2016:00:19:53 -0200] "GET / HTTP/1.1" 404 992
+0:0:0:0:0:0:0:1 - - [20/Dec/2016:00:20:30 -0200] "GET /exemplosgrafico/menu.jsf HTTP/1.1" 200 855
+0:0:0:0:0:0:0:1 - - [20/Dec/2016:00:20:30 -0200] "GET /exemplosgrafico/javax.faces.resource/theme.css.jsf?ln=primefaces-aristo HTTP/1.1" 304 -
+0:0:0:0:0:0:0:1 - - [20/Dec/2016:00:20:30 -0200] "GET /favicon.ico HTTP/1.1" 404 1014
+0:0:0:0:0:0:0:1 - - [20/Dec/2016:00:20:33 -0200] "GET /exemplosgrafico/jfreechartcolunas.jsf;jsessionid=2513363D915D4C95383CF26354BF15BD HTTP/1.1" 200 510
+0:0:0:0:0:0:0:1 - - [20/Dec/2016:00:20:33 -0200] "GET /exemplosgrafico/javax.faces.resource/theme.css.jsf?ln=primefaces-aristo HTTP/1.1" 304 -
+0:0:0:0:0:0:0:1 - - [20/Dec/2016:00:20:34 -0200] "GET /exemplosgrafico/javax.faces.resource/dynamiccontent.properties.jsf?ln=primefaces&pfdrid=8dhQY1CI0P4L2V7XCi6G96E1x8zg6HSwJjfZ5UFjQFw%3D&pfdrt=sc&pfdrid_c=true HTTP/1.1" 200 11738

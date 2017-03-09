@@ -1,0 +1,399 @@
+package br.com.javaparaweb.financeiro.categoria;
+
+import java.util.List;
+
+import br.com.javaparaweb.financeiro.tipo.Tipo;
+import br.com.javaparaweb.financeiro.tipo.TipoDAO;
+import br.com.javaparaweb.financeiro.usuario.Usuario;
+import br.com.javaparaweb.financeiro.util.DAOFactory;
+
+public class CategoriaRN {
+
+	private String ultSeqCategoria;
+	private int seqCategoria;
+	private CategoriaDAO categoriaDAO;
+	private TipoDAO tipoDAO;
+
+	public CategoriaRN() {
+		this.categoriaDAO = DAOFactory.criarCategoriaDAO();
+		this.tipoDAO = DAOFactory.criarTipoDAO();
+	}
+
+	public List<Categoria> listar(Usuario usuario) {
+		return this.categoriaDAO.listar(usuario);
+	}
+
+	public Categoria salvar(Categoria categoria) {
+		Categoria pai = categoria.getPai();
+		if (pai == null) {
+			String msg = "A Categoria " + categoria.getDescricao() + " deve ter um pai definido.";
+			throw new IllegalArgumentException(msg);
+		}
+		Tipo tipo = categoria.getTipo();
+		if (tipo == null) {
+			String msg = "A Categoria " + categoria.getDescricao() + " deve ter um tipo definido.";
+			throw new IllegalArgumentException(msg);
+		}
+
+		boolean mudouFator = pai.getFator() != categoria.getFator();
+
+		categoria.setFator(pai.getFator());
+		categoria = this.categoriaDAO.salvar(categoria);
+
+		if (mudouFator) {
+			categoria = this.carregar(categoria.getCodigo());
+			this.replicarFator(categoria, categoria.getFator());
+		}
+		return categoria;
+	}
+
+	private void replicarFator(Categoria categoria, int fator) {
+		if (categoria.getFilhos() != null) {
+			for (Categoria filho : categoria.getFilhos()) {
+				filho.setFator(fator);
+				this.categoriaDAO.salvar(filho);
+				this.replicarFator(filho, fator);
+			}
+		}
+	}
+
+	public void excluir(Categoria categoria) {
+		this.categoriaDAO.excluir(categoria);
+	}
+
+	public void excluir(Usuario usuario) {
+		List<Categoria> lista = this.listar(usuario);
+		for (Categoria categoria : lista) {
+			this.categoriaDAO.excluir(categoria);
+		}
+	}
+
+	public Categoria carregar(Integer categoria) {
+		return this.categoriaDAO.carregar(categoria);
+	}
+
+	public void salvaEstruturaPadrao(Usuario usuario) {
+
+		/* ******************************************** */
+		/* Definição do Tipo de Categoria para Despesas */
+		/* ******************************************** */
+
+		Tipo tipo_despesa = new Tipo(usuario, "DESPESAS");
+		this.tipoDAO.salvar(tipo_despesa);
+		tipo_despesa = this.tipoDAO.buscarPorNome(usuario, "DESPESAS");
+
+		/* ************************************ */
+		/* Definição das Categorias de Despesas */
+		/* ************************************ */
+
+		/* DESPESAS */
+		Categoria despesas = new Categoria(null, usuario, "DESPESAS", -1, tipo_despesa, "01");
+		despesas = this.categoriaDAO.salvar(despesas);
+
+		/* CASA */
+		Categoria sub_despesa = new Categoria(despesas, usuario, "Casa", -1, tipo_despesa, "01.01");
+		sub_despesa = this.categoriaDAO.salvar(sub_despesa);
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Financiamento", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Aluguel", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Condomínio", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "IPTU", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Água", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Energia Elétrica", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Gás", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Telefone", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "TV a Cabo", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Internet", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Decoração", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Reformas", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Limpeza", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Despensa", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Seguros", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Lavanderia", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Utensílios Domésticos", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Jardinagem", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Material de Escritório", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Diversos", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+
+		/* APARTAMENTO */
+		sub_despesa = new Categoria(despesas, usuario, "Apartamento", -1, tipo_despesa, "01.02");
+		sub_despesa = this.categoriaDAO.salvar(sub_despesa);
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Financiamento", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Condomínio", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "IPTU", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Água", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Energia Elétrica", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Gás", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Reforma", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Diversos", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+
+		/* VEÍCULOS */
+		sub_despesa = new Categoria(despesas, usuario, "Veículos", -1, tipo_despesa, "01.03");
+		sub_despesa = this.categoriaDAO.salvar(sub_despesa);
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Financiamento", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "IPVA", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "DPVAT", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Licenciamento", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Multas de Trânsito", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Mecânico", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Auto-Elétrico", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Funilaria e Pintura", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Inspeção Veicular", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Seguro", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Despachante", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Lava Rápido", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Pedágio", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Zona Azul", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Estacionamento", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Combustível", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Diversos", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+
+		/* PESSOAL */
+		sub_despesa = new Categoria(despesas, usuario, "Pessoal", -1, tipo_despesa, "01.04");
+		sub_despesa = this.categoriaDAO.salvar(sub_despesa);
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Alimentação", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Saúde", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Vestuário", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Educação", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Celular", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Transporte", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Perfumaria", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Diversão", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Academia", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Clube de Férias", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Presentes", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Seguro", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Documentações", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "IRPF", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Moeda Estrangeira", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Diversos", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+
+		/* BANCOS */
+		sub_despesa = new Categoria(despesas, usuario, "Bancos", -1, tipo_despesa, "01.05");
+		sub_despesa = this.categoriaDAO.salvar(sub_despesa);
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Manutenção", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "IOF", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Tarifas - Envio Extrato", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Tarifas - DOC/TED", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Seguro", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Juros", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+
+		/* CARTÃO DE CRÉDITO */
+		sub_despesa = new Categoria(despesas, usuario, "Cartão de Crédito", -1, tipo_despesa, "01.06");
+		sub_despesa = this.categoriaDAO.salvar(sub_despesa);
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "Pagamento", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Mensalidade/Anuidade", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Juros e Multas", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_despesa, usuario, "IOF", -1, tipo_despesa, this.getSeqCategoria(sub_despesa)));
+		this.categoriaDAO.salvar(new Categoria(sub_despesa, usuario, "Variação Cambial", -1, tipo_despesa,
+				this.getSeqCategoria(sub_despesa)));
+
+		/* EMPRESA */
+		sub_despesa = new Categoria(despesas, usuario, "Empresa", -1, tipo_despesa, "01.07");
+		sub_despesa = this.categoriaDAO.salvar(sub_despesa);
+
+		/* EMPRESA - TRIBUTOS E IMPOSTOS */
+		Categoria desp_empresa = new Categoria(sub_despesa, usuario, "Tributos e Impostos", -1, tipo_despesa,
+				"01.07.01");
+		desp_empresa = this.categoriaDAO.salvar(desp_empresa);
+		this.categoriaDAO.salvar(
+				new Categoria(desp_empresa, usuario, "ISS", -1, tipo_despesa, this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(
+				new Categoria(desp_empresa, usuario, "INSS", -1, tipo_despesa, this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(
+				new Categoria(desp_empresa, usuario, "CSLL", -1, tipo_despesa, this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(
+				new Categoria(desp_empresa, usuario, "IRPJ", -1, tipo_despesa, this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(
+				new Categoria(desp_empresa, usuario, "PIS", -1, tipo_despesa, this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(
+				new Categoria(desp_empresa, usuario, "COFINS", -1, tipo_despesa, this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(
+				new Categoria(desp_empresa, usuario, "TEF", -1, tipo_despesa, this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(new Categoria(desp_empresa, usuario, "Contribuição Sindical", -1, tipo_despesa,
+				this.getSeqCategoria(desp_empresa)));
+
+		/* EMPRESA - BANCOS */
+		desp_empresa = new Categoria(sub_despesa, usuario, "Bancos", -1, tipo_despesa, "01.07.02");
+		desp_empresa = this.categoriaDAO.salvar(desp_empresa);
+		this.categoriaDAO.salvar(new Categoria(desp_empresa, usuario, "Manutenção", -1, tipo_despesa,
+				this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(
+				new Categoria(desp_empresa, usuario, "IOF", -1, tipo_despesa, this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(new Categoria(desp_empresa, usuario, "Tarifas - Envio Extrato", -1, tipo_despesa,
+				this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(new Categoria(desp_empresa, usuario, "Tarifas - DOC/TED", -1, tipo_despesa,
+				this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(
+				new Categoria(desp_empresa, usuario, "Seguro", -1, tipo_despesa, this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(
+				new Categoria(desp_empresa, usuario, "Juros", -1, tipo_despesa, this.getSeqCategoria(desp_empresa)));
+
+		/* EMPRESA - FORNECEDORES */
+		desp_empresa = new Categoria(sub_despesa, usuario, "Fornecedores", -1, tipo_despesa, "01.07.03");
+		desp_empresa = this.categoriaDAO.salvar(desp_empresa);
+		this.categoriaDAO.salvar(new Categoria(desp_empresa, usuario, "Contabilidade", -1, tipo_despesa,
+				this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(
+				new Categoria(desp_empresa, usuario, "Correios", -1, tipo_despesa, this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(new Categoria(desp_empresa, usuario, "CertiSign", -1, tipo_despesa,
+				this.getSeqCategoria(desp_empresa)));
+
+		/* EMPRESA - VIAGENS */
+		desp_empresa = new Categoria(sub_despesa, usuario, "Viagens", -1, tipo_despesa, "01.07.04");
+		desp_empresa = this.categoriaDAO.salvar(desp_empresa);
+		this.categoriaDAO.salvar(new Categoria(desp_empresa, usuario, "Passagens Aéreas", -1, tipo_despesa,
+				this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(
+				new Categoria(desp_empresa, usuario, "Táxi", -1, tipo_despesa, this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(new Categoria(desp_empresa, usuario, "Alimentação", -1, tipo_despesa,
+				this.getSeqCategoria(desp_empresa)));
+		this.categoriaDAO.salvar(
+				new Categoria(desp_empresa, usuario, "Diversos", -1, tipo_despesa, this.getSeqCategoria(desp_empresa)));
+
+		/* ******************************************** */
+		/* Definição do Tipo de Categoria para Receitas */
+		/* ******************************************** */
+
+		Tipo tipo_receita = new Tipo(usuario, "RECEITAS");
+		this.tipoDAO.salvar(tipo_receita);
+		tipo_receita = this.tipoDAO.buscarPorNome(usuario, "RECEITAS");
+
+		/* ************************************ */
+		/* Definição das Categorias de Receitas */
+		/* ************************************ */
+
+		/* RECEITAS */
+		Categoria receitas = new Categoria(null, usuario, "RECEITAS", 1, tipo_receita, "02");
+		receitas = this.categoriaDAO.salvar(receitas);
+
+		/* CLT */
+		Categoria sub_receita = new Categoria(receitas, usuario, "CLT", 1, tipo_receita, "02.01");
+		sub_receita = this.categoriaDAO.salvar(sub_receita);
+		this.categoriaDAO.salvar(
+				new Categoria(sub_receita, usuario, "Salário", 1, tipo_receita, this.getSeqCategoria(sub_receita)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_receita, usuario, "13º Salário", 1, tipo_receita, this.getSeqCategoria(sub_receita)));
+		this.categoriaDAO.salvar(new Categoria(sub_receita, usuario, "Gratificações", 1, tipo_receita,
+				this.getSeqCategoria(sub_receita)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_receita, usuario, "Reembolsos", 1, tipo_receita, this.getSeqCategoria(sub_receita)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_receita, usuario, "Rescisão", 1, tipo_receita, this.getSeqCategoria(sub_receita)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_receita, usuario, "FGTS", 1, tipo_receita, this.getSeqCategoria(sub_receita)));
+
+		/* PJ */
+		sub_receita = new Categoria(receitas, usuario, "PJ", 1, tipo_receita, "02.02");
+		sub_receita = this.categoriaDAO.salvar(sub_receita);
+		this.categoriaDAO.salvar(
+				new Categoria(sub_receita, usuario, "Receita", 1, tipo_receita, this.getSeqCategoria(sub_receita)));
+		this.categoriaDAO.salvar(new Categoria(sub_receita, usuario, "Receita com 3ºs", 1, tipo_receita,
+				this.getSeqCategoria(sub_receita)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_receita, usuario, "Reembolsos", 1, tipo_receita, this.getSeqCategoria(sub_receita)));
+
+		/* RENDIMENTOS */
+		sub_receita = new Categoria(receitas, usuario, "Rendimentos", 1, tipo_receita, "02.03");
+		sub_receita = this.categoriaDAO.salvar(sub_receita);
+		this.categoriaDAO.salvar(new Categoria(sub_receita, usuario, "Fundo de Investimentos", 1, tipo_receita,
+				this.getSeqCategoria(sub_receita)));
+		this.categoriaDAO.salvar(new Categoria(sub_receita, usuario, "CDB, Renda Fixa e Inv. Estrut.", 1, tipo_receita,
+				this.getSeqCategoria(sub_receita)));
+		this.categoriaDAO.salvar(new Categoria(sub_receita, usuario, "Previdência Privada", 1, tipo_receita,
+				this.getSeqCategoria(sub_receita)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_receita, usuario, "Poupança", 1, tipo_receita, this.getSeqCategoria(sub_receita)));
+		this.categoriaDAO.salvar(
+				new Categoria(sub_receita, usuario, "Ações", 1, tipo_receita, this.getSeqCategoria(sub_receita)));
+		this.categoriaDAO.salvar(new Categoria(sub_receita, usuario, "Conta Corrente", 1, tipo_receita,
+				this.getSeqCategoria(sub_receita)));
+
+		/* RESTITUIÇÕES */
+		sub_receita = new Categoria(receitas, usuario, "Restituições", 1, tipo_receita, "02.04");
+		sub_receita = this.categoriaDAO.salvar(sub_receita);
+		this.categoriaDAO.salvar(
+				new Categoria(sub_receita, usuario, "IRPF", 1, tipo_receita, this.getSeqCategoria(sub_receita)));
+	}
+
+	public String getSeqCategoria(Categoria cat) {
+		if (!cat.getSequencia().equals(ultSeqCategoria)) {
+			ultSeqCategoria = cat.getSequencia();
+			this.seqCategoria = 1;
+		} else {
+			this.seqCategoria++;
+		}
+		return cat.getSequencia() + "." + String.format("%02d", this.seqCategoria);
+	}
+
+}
